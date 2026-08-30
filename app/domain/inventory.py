@@ -1,3 +1,10 @@
+from enum import Enum
+
+class ExpiryStatus(Enum):
+    FRESH = "fresh"
+    EXPIRING_SOON = "expiring_soon"
+    EXPIRED = "expired"
+
 
 
 class Item:
@@ -9,3 +16,12 @@ class Item:
     def days_until_expiry(self, today):
         difference = self.expiry_date - today
         return difference.days
+
+    def status(self, today):
+        difference = self.days_until_expiry(today)
+        if difference < 0:
+            return ExpiryStatus.EXPIRED
+        elif difference <= 2:
+            return ExpiryStatus.EXPIRING_SOON
+        else:
+            return ExpiryStatus.FRESH
