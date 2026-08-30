@@ -1,0 +1,9 @@
+# Runtime deps for v1. Nothing here is needed for the domain layer (step 1) —
+# it imports only the stdlib. Web/persistence steps will start using these.
+fastapi>=0.115
+uvicorn[standard]>=0.30
+sqlalchemy>=2.0
+apscheduler>=3.10
+passlib[bcrypt]>=1.7
+python-multipart>=0.0.9
+pydantic-settings>=2.0
