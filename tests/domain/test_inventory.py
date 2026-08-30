@@ -2,19 +2,18 @@ from datetime import date, timedelta
 
 import pytest
 
-from app.domain.inventory import ExpiryStatus, Item
+from app.domain.inventory import ExpiryStatus
+from tests.domain.utils import create_item
 
 
 class TestInventory:
 
     def setup_method(self):
-        self.added = date(2026, 8, 25)
         self.today = date(2026, 8, 30)
-        self.expiry = date(2026, 9, 2)
-        self.item = Item("test_item", self.added, self.expiry)
+        self.item = create_item()
 
     def test_days_until_expiry_count_day_from_today(self):
-        assert self.item.days_until_expiry(self.today) == 3
+        assert self.item.days_until_expiry(self.today) == 1
 
     def test_create_item(self):
         assert self.item.name == "test_item"
@@ -31,7 +30,11 @@ class TestInventory:
         ],
     )
     def test_status(self, days_out, expected):
-        item = Item("x", self.added, self.today + timedelta(days=days_out))
+        item = create_item(expiry_date=self.today + timedelta(days=days_out))
         assert item.status(self.today) == expected
+
+    def test_non_positive_quantity_raises(self):
+        with pytest.raises(ValueError):
+            create_item(quantity=0)
 
 

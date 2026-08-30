@@ -8,8 +8,11 @@ class ExpiryStatus(Enum):
 
 
 class Item:
-    def __init__(self, name, added_date, expiry_date):
+    def __init__(self, name, quantity, added_date, expiry_date):
         self.name = name
+        if quantity <= 0:
+            raise ValueError("quantity must be positive")
+        self.quantity = quantity
         self.added_date = added_date
         self.expiry_date = expiry_date
 
@@ -18,10 +21,10 @@ class Item:
         return difference.days
 
     def status(self, today):
-        difference = self.days_until_expiry(today)
-        if difference < 0:
+        days = self.days_until_expiry(today)
+        if days < 0:
             return ExpiryStatus.EXPIRED
-        elif difference <= 2:
+        elif days <= 2:
             return ExpiryStatus.EXPIRING_SOON
         else:
             return ExpiryStatus.FRESH
