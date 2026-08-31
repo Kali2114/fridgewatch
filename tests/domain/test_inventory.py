@@ -13,10 +13,13 @@ class TestInventory:
         self.item = create_item()
 
     def test_days_until_expiry_count_day_from_today(self):
-        assert self.item.days_until_expiry(self.today) == 1
+        item = create_item(expiry_date=self.today + timedelta(days=3))
+        assert item.days_until_expiry(self.today) == 3
 
     def test_create_item(self):
         assert self.item.name == "test_item"
+        assert self.item.user_id == 1
+        assert self.item.id is None
 
     @pytest.mark.parametrize(
         "days_out, expected",

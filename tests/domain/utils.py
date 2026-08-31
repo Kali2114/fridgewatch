@@ -9,6 +9,7 @@ def create_item(**kwargs):
         "quantity": 1,
         "added_date": date.today(),
         "expiry_date": date.today() + timedelta(days=1),
+        "user_id": 1,
     }
     payload.update(kwargs)
     return Item(**payload)
