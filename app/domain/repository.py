@@ -16,4 +16,19 @@ class InMemoryItemRepository:
         try:
             return self.items[item_id]
         except KeyError:
-            raise ItemNotFound(f"Item {item_id} not found")
+            raise ItemNotFound(f"Item {item_id} not found") from None
+
+    def list_for_user(self, user_id):
+        return [i for i in self.items.values() if i.user_id == user_id]
+
+    def delete_item(self, item_id):
+        try:
+            del self.items[item_id]
+        except KeyError:
+            raise ItemNotFound(f"Item {item_id} not found") from None
+
+    def update_item(self, item_id, payload):
+        item = self.get_item(item_id)
+        for key, value in payload.items():
+            setattr(item, key, value)
+        return item
