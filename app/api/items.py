@@ -26,3 +26,8 @@ def create_item(item: ItemCreate, repository=Depends(get_repository)) -> Item:
 def list_items(repository=Depends(get_repository)) -> list[Item]:
     items = repository.list_for_user(user_id=1)
     return items
+
+
+@router.get("/items/{item_id}", response_model=ItemRead, status_code=status.HTTP_200_OK)
+def read_item(item_id: int, repository=Depends(get_repository)) -> Item:
+    return repository.get_item(item_id)

@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 import pytest
 
 from app.dependencies import get_repository
@@ -14,3 +16,8 @@ def fresh_repository():
     yield repository
 
     app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def tomorrow():
+    return date.today() + timedelta(days=1)

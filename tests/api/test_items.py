@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date
 
 from fastapi.testclient import TestClient
 
@@ -37,7 +37,7 @@ def test_post_item_bad_quantity(fresh_repository):
     assert res.status_code == 422
 
 
-def test_list_items(fresh_repository):
+def test_list_items(fresh_repository, tomorrow):
     item1 = create_item()
     item2 = create_item(name="test_name2")
     item3 = create_item(name="test_name3", user_id=2)
@@ -48,7 +48,6 @@ def test_list_items(fresh_repository):
 
     assert res.status_code == 200
     assert len(res.json()) == 2
-    date_dict = date.today() + timedelta(days=1)
 
     assert res.json() == [
         {
@@ -56,7 +55,7 @@ def test_list_items(fresh_repository):
             "name": "test_item",
             "quantity": 1,
             "added_date": date.today().isoformat(),
-            "expiry_date": date_dict.isoformat(),
+            "expiry_date": tomorrow.isoformat(),
             "user_id": 1,
         },
         {
@@ -64,7 +63,29 @@ def test_list_items(fresh_repository):
             "name": "test_name2",
             "quantity": 1,
             "added_date": date.today().isoformat(),
-            "expiry_date": date_dict.isoformat(),
+            "expiry_date": tomorrow.isoformat(),
             "user_id": 1,
         },
     ]
+
+
+def test_get_item_successful(fresh_repository, tomorrow):
+    item = create_item()
+    fresh_repository.add_item(item)
+    res = client.get("/items/1")
+
+    assert res.status_code == 200
+    assert res.json() == {
+        "id": 1,
+        "name": "test_item",
+        "quantity": 1,
+        "added_date": date.today().isoformat(),
+        "expiry_date": tomorrow.isoformat(),
+        "user_id": 1,
+    }
+
+
+def test_get_item_id_not_found(fresh_repository):
+    res = client.get("/items/99")
+    assert res.status_code == 404
+    assert res.json() == {"detail": "Item 99 not found"}
