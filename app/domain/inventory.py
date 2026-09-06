@@ -1,10 +1,10 @@
 from enum import Enum
 
+
 class ExpiryStatus(Enum):
     FRESH = "fresh"
     EXPIRING_SOON = "expiring_soon"
     EXPIRED = "expired"
-
 
 
 class Item:

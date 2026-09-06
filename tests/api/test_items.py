@@ -1,9 +1,8 @@
-import pytest
-from fastapi.testclient import TestClient
 from datetime import date
 
-from app.main import app
+from fastapi.testclient import TestClient
 
+from app.main import app
 
 client = TestClient(app)
 
@@ -24,6 +23,7 @@ def test_post_item(fresh_repository):
         "added_date": date.today().isoformat(),
         "user_id": 1,
     }
+
 
 def test_post_item_bad_quantity(fresh_repository):
     payload = {

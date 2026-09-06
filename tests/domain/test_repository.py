@@ -68,5 +68,3 @@ class TestInMemoryItemRepository:
     def test_update_item_not_found(self):
         with pytest.raises(ItemNotFound):
             self.repository.update_item(2, {"name": "change_name"})
-
-

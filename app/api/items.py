@@ -6,7 +6,6 @@ from app.dependencies import get_repository
 from app.domain.inventory import Item
 from app.schemas import ItemCreate, ItemRead
 
-
 router = APIRouter()
 
 
@@ -17,7 +16,7 @@ def create_item(item: ItemCreate, repository=Depends(get_repository)) -> Item:
         quantity=item.quantity,
         expiry_date=item.expiry_date,
         user_id=1,
-        added_date=date.today()
+        added_date=date.today(),
     )
     new_item = repository.add_item(item_created)
     return new_item

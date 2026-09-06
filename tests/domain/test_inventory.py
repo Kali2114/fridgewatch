@@ -25,7 +25,7 @@ class TestInventory:
         "days_out, expected",
         [
             (10, ExpiryStatus.FRESH),
-            (3, ExpiryStatus.FRESH),          # just outside the 2-day window
+            (3, ExpiryStatus.FRESH),  # just outside the 2-day window
             (2, ExpiryStatus.EXPIRING_SOON),  # boundary
             (1, ExpiryStatus.EXPIRING_SOON),
             (0, ExpiryStatus.EXPIRING_SOON),  # expires today, not expired yet
@@ -39,5 +39,3 @@ class TestInventory:
     def test_non_positive_quantity_raises(self):
         with pytest.raises(ValueError):
             create_item(quantity=0)
-
-
