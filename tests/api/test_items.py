@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 
 from fastapi.testclient import TestClient
 
@@ -98,5 +98,30 @@ def test_delete_item(seeded_item, tomorrow):
 def test_delete_item_not_found(fresh_repository):
     res = client.delete("/items/99")
 
+    assert res.status_code == 404
+    assert res.json() == {"detail": "Item 99 not found"}
+
+
+def test_update_item(seeded_item, tomorrow):
+    tomorrow = tomorrow + timedelta(days=1)
+    payload = {
+        "name": "change_name",
+        "quantity": 5,
+        "expiry_date": tomorrow.isoformat(),
+    }
+    res = client.put("/items/1", json=payload)
+    assert res.status_code == 200
+    assert res.json() == {
+        "id": 1,
+        "name": "change_name",
+        "quantity": 5,
+        "added_date": date.today().isoformat(),
+        "expiry_date": tomorrow.isoformat(),
+        "user_id": 1,
+    }
+
+
+def test_update_item_not_found(fresh_repository):
+    res = client.put("/items/99", json={"name": "change_name"})
     assert res.status_code == 404
     assert res.json() == {"detail": "Item 99 not found"}

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, status
 
 from app.dependencies import get_repository
 from app.domain.inventory import Item
-from app.schemas import ItemCreate, ItemRead
+from app.schemas import ItemCreate, ItemRead, ItemUpdate
 
 router = APIRouter()
 
@@ -36,3 +36,11 @@ def read_item(item_id: int, repository=Depends(get_repository)) -> Item:
 @router.delete("/items/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_item(item_id: int, repository=Depends(get_repository)):
     return repository.delete_item(item_id)
+
+
+@router.put("/items/{item_id}", response_model=ItemRead, status_code=status.HTTP_200_OK)
+def patch_item(
+    item_id: int, item_update: ItemUpdate, repository=Depends(get_repository)
+):
+    item_update = item_update.model_dump(exclude_unset=True)
+    return repository.update_item(item_id, item_update)

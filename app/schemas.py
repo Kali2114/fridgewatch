@@ -17,3 +17,9 @@ class ItemRead(BaseModel):
     expiry_date: date
     added_date: date
     user_id: int
+
+
+class ItemUpdate(BaseModel):
+    name: str | None = None
+    quantity: int | None = Field(default=None, gt=0)
+    expiry_date: date | None = None
