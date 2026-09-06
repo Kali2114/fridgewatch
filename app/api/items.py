@@ -31,3 +31,8 @@ def list_items(repository=Depends(get_repository)) -> list[Item]:
 @router.get("/items/{item_id}", response_model=ItemRead, status_code=status.HTTP_200_OK)
 def read_item(item_id: int, repository=Depends(get_repository)) -> Item:
     return repository.get_item(item_id)
+
+
+@router.delete("/items/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_item(item_id: int, repository=Depends(get_repository)):
+    return repository.delete_item(item_id)

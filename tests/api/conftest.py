@@ -5,6 +5,7 @@ import pytest
 from app.dependencies import get_repository
 from app.domain.repository import InMemoryItemRepository
 from app.main import app
+from tests.domain.utils import create_item
 
 
 @pytest.fixture
@@ -21,3 +22,10 @@ def fresh_repository():
 @pytest.fixture
 def tomorrow():
     return date.today() + timedelta(days=1)
+
+
+@pytest.fixture
+def seeded_item(fresh_repository):
+    item = create_item()
+    fresh_repository.add_item(item)
+    return item

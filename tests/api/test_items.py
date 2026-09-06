@@ -69,9 +69,7 @@ def test_list_items(fresh_repository, tomorrow):
     ]
 
 
-def test_get_item_successful(fresh_repository, tomorrow):
-    item = create_item()
-    fresh_repository.add_item(item)
+def test_get_item_successful(seeded_item, tomorrow):
     res = client.get("/items/1")
 
     assert res.status_code == 200
@@ -87,5 +85,18 @@ def test_get_item_successful(fresh_repository, tomorrow):
 
 def test_get_item_id_not_found(fresh_repository):
     res = client.get("/items/99")
+    assert res.status_code == 404
+    assert res.json() == {"detail": "Item 99 not found"}
+
+
+def test_delete_item(seeded_item, tomorrow):
+    res = client.delete("/items/1")
+
+    assert res.status_code == 204
+
+
+def test_delete_item_not_found(fresh_repository):
+    res = client.delete("/items/99")
+
     assert res.status_code == 404
     assert res.json() == {"detail": "Item 99 not found"}
