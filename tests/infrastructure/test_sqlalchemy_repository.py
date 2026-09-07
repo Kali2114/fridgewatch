@@ -46,3 +46,20 @@ def test_list_for_no_exist_id_return_empty_list(db_session):
     repository = SQLAlchemyItemRepository(db_session)
     result = repository.list_for_user(9999)
     assert result == []
+
+
+def test_delete_item(db_session):
+    item = create_item()
+    repository = SQLAlchemyItemRepository(db_session)
+    repository.add_item(item)
+
+    repository.delete_item(item.id)
+
+    with pytest.raises(ItemNotFound):
+        repository.get_item(item.id)
+
+
+def test_delete_item_not_found(db_session):
+    repository = SQLAlchemyItemRepository(db_session)
+    with pytest.raises(ItemNotFound):
+        repository.delete_item(99)

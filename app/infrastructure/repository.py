@@ -51,3 +51,10 @@ class SQLAlchemyItemRepository:
             )
             results.append(item)
         return results
+
+    def delete_item(self, item_id):
+        model = self.session.get(ItemModel, item_id)
+        if model is None:
+            raise ItemNotFound(f"Item {item_id} not found")
+        self.session.delete(model)
+        self.session.commit()
