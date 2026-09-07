@@ -1,3 +1,5 @@
+from sqlalchemy import select
+
 from app.domain.exceptions import ItemNotFound
 from app.domain.inventory import Item
 from app.infrastructure.models import ItemModel
@@ -32,3 +34,20 @@ class SQLAlchemyItemRepository:
             added_date=model.added_date,
             expiry_date=model.expiry_date,
         )
+
+    def list_for_user(self, user_id):
+        statement = select(ItemModel).where(ItemModel.user_id == user_id)
+        result = self.session.execute(statement)
+        result = result.scalars().all()
+        results = []
+        for model in result:
+            item = Item(
+                id=model.id,
+                user_id=model.user_id,
+                name=model.name,
+                quantity=model.quantity,
+                added_date=model.added_date,
+                expiry_date=model.expiry_date,
+            )
+            results.append(item)
+        return results

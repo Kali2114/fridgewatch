@@ -28,3 +28,21 @@ def test_get_item_not_found(db_session):
     repository = SQLAlchemyItemRepository(db_session)
     with pytest.raises(ItemNotFound):
         repository.get_item(99)
+
+
+def test_list_for_user(db_session):
+    item1 = create_item(name="item1")
+    item2 = create_item(name="item2")
+    repository = SQLAlchemyItemRepository(db_session)
+    repository.add_item(item1)
+    repository.add_item(item2)
+    user_list = repository.list_for_user(1)
+
+    assert [i.name for i in user_list] == ["item1", "item2"]
+    assert len(user_list) == 2
+
+
+def test_list_for_no_exist_id_return_empty_list(db_session):
+    repository = SQLAlchemyItemRepository(db_session)
+    result = repository.list_for_user(9999)
+    assert result == []
