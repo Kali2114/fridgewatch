@@ -1,7 +1,13 @@
-from app.domain.repository import InMemoryItemRepository
+from collections.abc import Iterator
 
-repository = InMemoryItemRepository()
+from app.infrastructure.database import SessionLocal
+from app.infrastructure.repository import SQLAlchemyItemRepository
 
 
-def get_repository() -> InMemoryItemRepository:
-    return repository
+def get_repository() -> Iterator[SQLAlchemyItemRepository]:
+    session = SessionLocal()
+    try:
+        repository = SQLAlchemyItemRepository(session)
+        yield repository
+    finally:
+        session.close()

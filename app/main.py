@@ -1,10 +1,20 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from app.api.items import router as items_router
 from app.domain.exceptions import ItemNotFound
+from app.infrastructure.database import Base, engine
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(engine)
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 app.include_router(items_router)
 
 
