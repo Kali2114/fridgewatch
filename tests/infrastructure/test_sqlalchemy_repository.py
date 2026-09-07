@@ -63,3 +63,35 @@ def test_delete_item_not_found(db_session):
     repository = SQLAlchemyItemRepository(db_session)
     with pytest.raises(ItemNotFound):
         repository.delete_item(99)
+
+
+def test_update_item(db_session):
+    item = create_item()
+    repository = SQLAlchemyItemRepository(db_session)
+    repository.add_item(item)
+    payload = {
+        "name": "Updated item",
+        "quantity": 10,
+    }
+    updated_item = repository.update_item(item.id, payload)
+
+    assert updated_item.id == item.id
+    assert updated_item.name == payload["name"]
+    assert updated_item.quantity == payload["quantity"]
+
+
+def test_update_item_invalid_quantity(db_session):
+    item = create_item()
+    repository = SQLAlchemyItemRepository(db_session)
+    repository.add_item(item)
+    payload = {
+        "quantity": -5,
+    }
+    with pytest.raises(ValueError):
+        repository.update_item(item.id, payload)
+
+
+def test_update_item_not_found(db_session):
+    repository = SQLAlchemyItemRepository(db_session)
+    with pytest.raises(ItemNotFound):
+        repository.update_item(10, {})
