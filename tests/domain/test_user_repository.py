@@ -40,4 +40,4 @@ class TestUserRepository:
 
     def test_get_user_by_email_not_found(self):
         with pytest.raises(UserNotFound):
-            self.repository.get_by_email("test")
+            self.repository.get_by_email("wrong@wrongly.uv")
