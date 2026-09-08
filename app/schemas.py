@@ -1,6 +1,6 @@
 from datetime import date
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class ItemCreate(BaseModel):
@@ -23,3 +23,17 @@ class ItemUpdate(BaseModel):
     name: str | None = None
     quantity: int | None = Field(default=None, gt=0)
     expiry_date: date | None = None
+
+
+class UserCreate(BaseModel):
+    name: str
+    email: EmailStr
+    password: str = Field(min_length=8)
+
+
+class UserRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    name: str
+    email: str
+    is_active: bool

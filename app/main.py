@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from app.api.auth import router as auth_router
 from app.api.items import router as items_router
 from app.domain.exceptions import ItemNotFound
 from app.infrastructure.database import Base, engine
@@ -16,6 +17,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(items_router)
+app.include_router(auth_router)
 
 
 @app.exception_handler(ItemNotFound)
