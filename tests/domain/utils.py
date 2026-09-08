@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 
 from app.domain.inventory import Item
+from app.domain.user import User
 
 
 def create_item(**kwargs):
@@ -13,3 +14,13 @@ def create_item(**kwargs):
     }
     payload.update(kwargs)
     return Item(**payload)
+
+
+def create_user(**kwargs):
+    payload = {
+        "name": "test_user",
+        "email": "test@example.com",
+        "hashed_password": "test_password",
+    }
+    payload.update(kwargs)
+    return User(**payload)
