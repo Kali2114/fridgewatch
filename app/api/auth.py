@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Depends
-from starlette import status
+from fastapi import APIRouter, Depends, status
 
 from app.dependencies import get_user_repository
 from app.domain.user import User
