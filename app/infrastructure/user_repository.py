@@ -1,3 +1,5 @@
+from sqlalchemy import select
+
 from app.domain.exceptions import UserNotFound
 from app.domain.user import User
 from app.infrastructure.models import UserModel
@@ -24,6 +26,13 @@ class SQLAlchemyUserRepository:
         if model is None:
             raise UserNotFound(f"User with id {user_id} not found")
         return self._to_domain(model)
+
+    def get_by_email(self, email: str) -> User:
+        statement = select(UserModel).where(UserModel.email == email)
+        result = self.session.execute(statement).scalars().first()
+        if result is None:
+            raise UserNotFound(f"User with email {email} not found")
+        return self._to_domain(result)
 
     @staticmethod
     def _to_domain(user: UserModel) -> User:
