@@ -125,3 +125,33 @@ def test_update_item_not_found(fresh_repository):
     res = client.put("/items/99", json={"name": "change_name"})
     assert res.status_code == 404
     assert res.json() == {"detail": "Item 99 not found"}
+
+
+def test_get_item_owned_by_another_user(fresh_repository):
+    other_users_item = create_item(user_id=2)
+    fresh_repository.add_item(other_users_item)
+
+    res = client.get(f"/items/{other_users_item.id}")
+
+    assert res.status_code == 404
+    assert res.json() == {"detail": f"Item {other_users_item.id} not found"}
+
+
+def test_delete_item_owned_by_another_user(fresh_repository):
+    other_users_item = create_item(user_id=2)
+    fresh_repository.add_item(other_users_item)
+
+    res = client.delete(f"/items/{other_users_item.id}")
+
+    assert res.status_code == 404
+    assert res.json() == {"detail": f"Item {other_users_item.id} not found"}
+
+
+def test_update_item_owned_by_another_user(fresh_repository):
+    other_users_item = create_item(user_id=2)
+    fresh_repository.add_item(other_users_item)
+
+    res = client.put(f"/items/{other_users_item.id}", json={"name": "hijacked"})
+
+    assert res.status_code == 404
+    assert res.json() == {"detail": f"Item {other_users_item.id} not found"}

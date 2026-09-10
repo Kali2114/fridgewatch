@@ -1,4 +1,7 @@
+from typing import Any
+
 from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from app.domain.exceptions import ItemNotFound
 from app.domain.inventory import Item
@@ -6,10 +9,10 @@ from app.infrastructure.models import ItemModel
 
 
 class SQLAlchemyItemRepository:
-    def __init__(self, session):
+    def __init__(self, session: Session) -> None:
         self.session = session
 
-    def add_item(self, item):
+    def add_item(self, item: Item) -> Item:
         model = ItemModel(
             user_id=item.user_id,
             name=item.name,
@@ -22,26 +25,26 @@ class SQLAlchemyItemRepository:
         item.id = model.id
         return item
 
-    def get_item(self, item_id):
+    def get_item(self, item_id: int) -> Item:
         model = self.session.get(ItemModel, item_id)
         if model is None:
             raise ItemNotFound(f"Item {item_id} not found")
         return self._to_domain(model)
 
-    def list_for_user(self, user_id):
+    def list_for_user(self, user_id: int) -> list[Item]:
         statement = select(ItemModel).where(ItemModel.user_id == user_id)
         result = self.session.execute(statement)
         models = result.scalars().all()
         return [self._to_domain(model) for model in models]
 
-    def delete_item(self, item_id):
+    def delete_item(self, item_id: int) -> None:
         model = self.session.get(ItemModel, item_id)
         if model is None:
             raise ItemNotFound(f"Item {item_id} not found")
         self.session.delete(model)
         self.session.commit()
 
-    def update_item(self, item_id, payload):
+    def update_item(self, item_id: int, payload: dict[str, Any]) -> Item:
         model = self.session.get(ItemModel, item_id)
         if model is None:
             raise ItemNotFound(f"Item {item_id} not found")
@@ -58,7 +61,7 @@ class SQLAlchemyItemRepository:
         return domain_item
 
     @staticmethod
-    def _to_domain(model):
+    def _to_domain(model: ItemModel) -> Item:
         return Item(
             id=model.id,
             user_id=model.user_id,

@@ -2,8 +2,9 @@ from datetime import date, timedelta
 
 import pytest
 
-from app.dependencies import get_repository, get_user_repository
+from app.dependencies import get_current_user, get_repository, get_user_repository
 from app.domain.repository import InMemoryItemRepository
+from app.domain.user import User
 from app.domain.user_repository import InMemoryUserRepository
 from app.main import app
 from tests.domain.utils import create_item
@@ -39,5 +40,16 @@ def user_fresh_repository():
     app.dependency_overrides[get_user_repository] = lambda: repository
 
     yield repository
+
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture(autouse=True)
+def current_user():
+    user = User(id=1, name="test_user", email="test@example.com", hashed_password="x")
+
+    app.dependency_overrides[get_current_user] = lambda: user
+
+    yield user
 
     app.dependency_overrides.clear()
