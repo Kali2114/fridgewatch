@@ -2,6 +2,8 @@ from datetime import date
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
+from app.domain.inventory import ExpiryStatus
+
 
 class ItemCreate(BaseModel):
     name: str
@@ -17,6 +19,8 @@ class ItemRead(BaseModel):
     expiry_date: date
     added_date: date
     user_id: int
+    status: ExpiryStatus
+    days_until_expiry: int
 
 
 class ItemUpdate(BaseModel):

@@ -23,6 +23,8 @@ def test_post_item(fresh_repository):
         "expiry_date": "2020-04-04",
         "added_date": date.today().isoformat(),
         "user_id": 1,
+        "status": "expired",
+        "days_until_expiry": (date(2020, 4, 4) - date.today()).days,
     }
 
 
@@ -57,6 +59,8 @@ def test_list_items(fresh_repository, tomorrow):
             "added_date": date.today().isoformat(),
             "expiry_date": tomorrow.isoformat(),
             "user_id": 1,
+            "status": "expiring_soon",
+            "days_until_expiry": 1,
         },
         {
             "id": 2,
@@ -65,6 +69,8 @@ def test_list_items(fresh_repository, tomorrow):
             "added_date": date.today().isoformat(),
             "expiry_date": tomorrow.isoformat(),
             "user_id": 1,
+            "status": "expiring_soon",
+            "days_until_expiry": 1,
         },
     ]
 
@@ -80,6 +86,8 @@ def test_get_item_successful(seeded_item, tomorrow):
         "added_date": date.today().isoformat(),
         "expiry_date": tomorrow.isoformat(),
         "user_id": 1,
+        "status": "expiring_soon",
+        "days_until_expiry": 1,
     }
 
 
@@ -118,6 +126,8 @@ def test_update_item(seeded_item, tomorrow):
         "added_date": date.today().isoformat(),
         "expiry_date": tomorrow.isoformat(),
         "user_id": 1,
+        "status": "expiring_soon",
+        "days_until_expiry": 2,
     }
 
 

@@ -18,12 +18,26 @@ def _get_owned_item(item_id: int, repository, current_user: User) -> Item:
     return item
 
 
+def _item_to_read(item: Item) -> ItemRead:
+    today = date.today()
+    return ItemRead(
+        id=item.id,
+        name=item.name,
+        quantity=item.quantity,
+        expiry_date=item.expiry_date,
+        added_date=item.added_date,
+        user_id=item.user_id,
+        status=item.status(today),
+        days_until_expiry=item.days_until_expiry(today),
+    )
+
+
 @router.post("/items", response_model=ItemRead, status_code=status.HTTP_201_CREATED)
 def create_item(
     item: ItemCreate,
     repository=Depends(get_repository),
     current_user: User = Depends(get_current_user),
-) -> Item:
+) -> ItemRead:
     item_created = Item(
         name=item.name,
         quantity=item.quantity,
@@ -31,7 +45,8 @@ def create_item(
         user_id=current_user.id,
         added_date=date.today(),
     )
-    new_item = repository.add_item(item_created)
+    repository.add_item(item_created)
+    new_item = _item_to_read(item_created)
     return new_item
 
 
@@ -39,9 +54,10 @@ def create_item(
 def list_items(
     repository=Depends(get_repository),
     current_user: User = Depends(get_current_user),
-) -> list[Item]:
+) -> list[ItemRead]:
     items = repository.list_for_user(user_id=current_user.id)
-    return items
+    items_for_return = [_item_to_read(item) for item in items]
+    return items_for_return
 
 
 @router.get("/items/{item_id}", response_model=ItemRead, status_code=status.HTTP_200_OK)
@@ -49,8 +65,9 @@ def read_item(
     item_id: int,
     repository=Depends(get_repository),
     current_user: User = Depends(get_current_user),
-) -> Item:
-    return _get_owned_item(item_id, repository, current_user)
+) -> ItemRead:
+    item = _get_owned_item(item_id, repository, current_user)
+    return _item_to_read(item)
 
 
 @router.delete("/items/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -69,7 +86,8 @@ def update_item(
     item_update: ItemUpdate,
     repository=Depends(get_repository),
     current_user: User = Depends(get_current_user),
-) -> Item:
+) -> ItemRead:
     _get_owned_item(item_id, repository, current_user)
     payload = item_update.model_dump(exclude_unset=True)
-    return repository.update_item(item_id, payload)
+    updated_item = repository.update_item(item_id, payload)
+    return _item_to_read(updated_item)
