@@ -165,3 +165,16 @@ def test_update_item_owned_by_another_user(fresh_repository):
 
     assert res.status_code == 404
     assert res.json() == {"detail": f"Item {other_users_item.id} not found"}
+
+
+def test_get_item_sorted_by_expire_days(fresh_repository):
+    expired_item = create_item(
+        name="expired_item", expiry_date=date.today() - timedelta(days=1)
+    )
+    item = create_item()
+    fresh_repository.add_item(item)
+    fresh_repository.add_item(expired_item)
+    res = client.get("/items/")
+
+    assert res.status_code == 200
+    assert res.json()[0]["name"] == "expired_item"

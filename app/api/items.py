@@ -57,7 +57,7 @@ def list_items(
 ) -> list[ItemRead]:
     items = repository.list_for_user(user_id=current_user.id)
     items_for_return = [_item_to_read(item) for item in items]
-    return items_for_return
+    return sorted(items_for_return, key=lambda x: x.days_until_expiry)
 
 
 @router.get("/items/{item_id}", response_model=ItemRead, status_code=status.HTTP_200_OK)
