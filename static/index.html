@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>What The Fridge?</title>
+<style>
+  :root {
+    --fresh: #2e8b57;
+    --soon: #d9a400;
+    --expired: #c0392b;
+    --bg: #f6f7f5;
+    --card: #ffffff;
+    --border: #e2e5e0;
+    --text: #23261f;
+    --muted: #6b7066;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header {
+    padding: 1.5rem 1rem 0.5rem;
+    text-align: center;
+  }
+  header h1 { margin: 0; font-size: 1.6rem; }
+  header p { color: var(--muted); margin: 0.25rem 0 0; font-size: 0.9rem; }
+
+  main {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  h2 { margin-top: 0; font-size: 1.1rem; }
+
+  form { display: flex; flex-direction: column; gap: 0.6rem; }
+  label { font-size: 0.8rem; color: var(--muted); }
+  input {
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.95rem;
+  }
+  .row { display: flex; gap: 0.6rem; }
+  .row > div { flex: 1; }
+
+  button {
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    padding: 0.55rem 0.9rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  button.primary { background: var(--fresh); color: white; }
+  button.primary:hover { background: #256b45; }
+  button.link {
+    background: none;
+    color: var(--muted);
+    text-decoration: underline;
+    padding: 0;
+    font-weight: 400;
+  }
+  button.danger { background: transparent; color: var(--expired); padding: 0.3rem 0.5rem; }
+  button.danger:hover { background: #fbeceb; }
+
+  .error {
+    color: var(--expired);
+    font-size: 0.85rem;
+    min-height: 1.1em;
+  }
+  .hint {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  #dashboardSection { display: none; }
+  #dashboardSection.visible { display: block; }
+  #authSection.hidden { display: none; }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .topbar button { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+
+  ul.items { list-style: none; margin: 0; padding: 0; }
+  ul.items li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  ul.items li:last-child { border-bottom: none; }
+
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot.fresh { background: var(--fresh); }
+  .dot.expiring_soon { background: var(--soon); }
+  .dot.expired { background: var(--expired); }
+
+  .item-info { flex: 1; min-width: 0; }
+  .item-name { font-weight: 600; }
+  .item-meta { font-size: 0.8rem; color: var(--muted); }
+
+  .empty { text-align: center; color: var(--muted); padding: 1.5rem 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>What The Fridge?</h1>
+  <p>Know what's about to go bad before it does.</p>
+</header>
+
+<main>
+
+  <section id="authSection" class="card">
+    <h2 id="authTitle">Log in</h2>
+
+    <form id="loginForm">
+      <div>
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" required />
+      </div>
+      <div>
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" required />
+      </div>
+      <div class="error" id="loginError"></div>
+      <button type="submit" class="primary">Log in</button>
+    </form>
+
+    <form id="registerForm" style="display: none;">
+      <div>
+        <label for="registerName">Name</label>
+        <input type="text" id="registerName" required />
+      </div>
+      <div>
+        <label for="registerEmail">Email</label>
+        <input type="email" id="registerEmail" required />
+      </div>
+      <div>
+        <label for="registerPassword">Password (min 8 chars)</label>
+        <input type="password" id="registerPassword" minlength="8" required />
+      </div>
+      <div class="error" id="registerError"></div>
+      <button type="submit" class="primary">Create account</button>
+    </form>
+
+    <p class="hint" style="margin-top: 0.9rem;">
+      <span id="toRegisterPrompt">No account yet? <button type="button" class="link" id="showRegister">Register</button></span>
+      <span id="toLoginPrompt" style="display: none;">Already have an account? <button type="button" class="link" id="showLogin">Log in</button></span>
+    </p>
+  </section>
+
+  <section id="dashboardSection">
+    <div class="topbar">
+      <span class="hint" id="whoami"></span>
+      <button type="button" id="logoutBtn">Log out</button>
+    </div>
+
+    <div class="card">
+      <h2>Add an item</h2>
+      <form id="addItemForm">
+        <div>
+          <label for="itemName">Name</label>
+          <input type="text" id="itemName" required />
+        </div>
+        <div class="row">
+          <div>
+            <label for="itemQuantity">Quantity</label>
+            <input type="number" id="itemQuantity" min="1" value="1" required />
+          </div>
+          <div>
+            <label for="itemExpiry">Expiry date</label>
+            <input type="date" id="itemExpiry" required />
+          </div>
+        </div>
+        <div class="error" id="addItemError"></div>
+        <button type="submit" class="primary">Add to fridge</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Your fridge</h2>
+      <ul class="items" id="itemList"></ul>
+      <p class="empty" id="emptyState" style="display: none;">Nothing in the fridge yet.</p>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function () {
+  const TOKEN_KEY = "fridgewatch_token";
+
+  const authSection = document.getElementById("authSection");
+  const dashboardSection = document.getElementById("dashboardSection");
+  const loginForm = document.getElementById("loginForm");
+  const registerForm = document.getElementById("registerForm");
+  const loginError = document.getElementById("loginError");
+  const registerError = document.getElementById("registerError");
+  const authTitle = document.getElementById("authTitle");
+  const toRegisterPrompt = document.getElementById("toRegisterPrompt");
+  const toLoginPrompt = document.getElementById("toLoginPrompt");
+  const whoami = document.getElementById("whoami");
+  const itemList = document.getElementById("itemList");
+  const emptyState = document.getElementById("emptyState");
+  const addItemForm = document.getElementById("addItemForm");
+  const addItemError = document.getElementById("addItemError");
+
+  function getToken() {
+    return localStorage.getItem(TOKEN_KEY);
+  }
+
+  function setToken(token) {
+    localStorage.setItem(TOKEN_KEY, token);
+  }
+
+  function clearToken() {
+    localStorage.removeItem(TOKEN_KEY);
+  }
+
+  function showAuth() {
+    authSection.classList.remove("hidden");
+    dashboardSection.classList.remove("visible");
+  }
+
+  function showDashboard() {
+    authSection.classList.add("hidden");
+    dashboardSection.classList.add("visible");
+    loadItems();
+  }
+
+  function showRegisterForm() {
+    authTitle.textContent = "Create an account";
+    loginForm.style.display = "none";
+    registerForm.style.display = "flex";
+    toRegisterPrompt.style.display = "none";
+    toLoginPrompt.style.display = "inline";
+  }
+
+  function showLoginForm() {
+    authTitle.textContent = "Log in";
+    loginForm.style.display = "flex";
+    registerForm.style.display = "none";
+    toRegisterPrompt.style.display = "inline";
+    toLoginPrompt.style.display = "none";
+  }
+
+  document.getElementById("showRegister").addEventListener("click", showRegisterForm);
+  document.getElementById("showLogin").addEventListener("click", showLoginForm);
+
+  async function authFetch(url, options) {
+    options = options || {};
+    options.headers = Object.assign({}, options.headers, {
+      Authorization: "Bearer " + getToken(),
+    });
+    const res = await fetch(url, options);
+    if (res.status === 401) {
+      clearToken();
+      showAuth();
+      throw new Error("Session expired, please log in again.");
+    }
+    return res;
+  }
+
+  loginForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    loginError.textContent = "";
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
+
+    try {
+      const res = await fetch("/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        loginError.textContent = data.detail || "Login failed.";
+        return;
+      }
+      setToken(data.access_token);
+      whoami.textContent = email;
+      showDashboard();
+    } catch (err) {
+      loginError.textContent = "Could not reach the server.";
+    }
+  });
+
+  registerForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    registerError.textContent = "";
+    const name = document.getElementById("registerName").value;
+    const email = document.getElementById("registerEmail").value;
+    const password = document.getElementById("registerPassword").value;
+
+    try {
+      const res = await fetch("/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        registerError.textContent = data.detail || "Registration failed.";
+        return;
+      }
+      showLoginForm();
+      document.getElementById("loginEmail").value = email;
+      loginError.textContent = "";
+    } catch (err) {
+      registerError.textContent = "Could not reach the server.";
+    }
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", function () {
+    clearToken();
+    showAuth();
+  });
+
+  function statusLabel(status) {
+    return status.replace("_", " ");
+  }
+
+  function renderItems(items) {
+    itemList.innerHTML = "";
+    emptyState.style.display = items.length === 0 ? "block" : "none";
+
+    items.forEach(function (item) {
+      const li = document.createElement("li");
+
+      const dot = document.createElement("span");
+      dot.className = "dot " + item.status;
+
+      const info = document.createElement("div");
+      info.className = "item-info";
+
+      const name = document.createElement("div");
+      name.className = "item-name";
+      name.textContent = item.name + " (x" + item.quantity + ")";
+
+      const meta = document.createElement("div");
+      meta.className = "item-meta";
+      const days = item.days_until_expiry;
+      let daysText;
+      if (days < 0) {
+        daysText = "expired " + Math.abs(days) + "d ago";
+      } else if (days === 0) {
+        daysText = "expires today";
+      } else {
+        daysText = "expires in " + days + "d";
+      }
+      meta.textContent = statusLabel(item.status) + " · " + daysText;
+
+      info.appendChild(name);
+      info.appendChild(meta);
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.className = "danger";
+      deleteBtn.textContent = "✕";
+      deleteBtn.title = "Delete";
+      deleteBtn.addEventListener("click", function () {
+        deleteItem(item.id);
+      });
+
+      li.appendChild(dot);
+      li.appendChild(info);
+      li.appendChild(deleteBtn);
+      itemList.appendChild(li);
+    });
+  }
+
+  async function loadItems() {
+    try {
+      const res = await authFetch("/items");
+      if (!res.ok) return;
+      const items = await res.json();
+      renderItems(items);
+    } catch (err) {
+      // authFetch already routed us back to the login screen on 401
+    }
+  }
+
+  addItemForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    addItemError.textContent = "";
+    const name = document.getElementById("itemName").value;
+    const quantity = parseInt(document.getElementById("itemQuantity").value, 10);
+    const expiry_date = document.getElementById("itemExpiry").value;
+
+    try {
+      const res = await authFetch("/items", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, quantity, expiry_date }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        addItemError.textContent = data.detail || "Could not add item.";
+        return;
+      }
+      addItemForm.reset();
+      document.getElementById("itemQuantity").value = 1;
+      loadItems();
+    } catch (err) {
+      addItemError.textContent = err.message || "Could not reach the server.";
+    }
+  });
+
+  async function deleteItem(id) {
+    try {
+      await authFetch("/items/" + id, { method: "DELETE" });
+      loadItems();
+    } catch (err) {
+      // already routed to login if session expired
+    }
+  }
+
+  if (getToken()) {
+    showDashboard();
+  } else {
+    showAuth();
+  }
+})();
+</script>
+
+</body>
+</html>
