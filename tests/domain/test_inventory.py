@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 import pytest
 
-from app.domain.inventory import ExpiryStatus
+from app.domain.inventory import ExpiryStatus, items_expiring_soon
 from tests.domain.utils import create_item
 
 
@@ -39,3 +39,27 @@ class TestInventory:
     def test_non_positive_quantity_raises(self):
         with pytest.raises(ValueError):
             create_item(quantity=0)
+
+    def test_items_expiring_soon(self):
+        today = date.today()
+
+        expiring_soon = create_item(
+            name="expiring_soon",
+            expiry_date=today + timedelta(days=1),
+        )
+        expires_later = create_item(
+            name="expires_later",
+            expiry_date=today + timedelta(days=5),
+        )
+        expired = create_item(
+            name="expired",
+            expiry_date=today - timedelta(days=1),
+        )
+
+        result = items_expiring_soon(
+            [expiring_soon, expires_later, expired],
+            today,
+            within_days=2,
+        )
+
+        assert result == [expiring_soon]

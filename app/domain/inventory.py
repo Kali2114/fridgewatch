@@ -47,3 +47,9 @@ class Item:
             return ExpiryStatus.EXPIRING_SOON
         else:
             return ExpiryStatus.FRESH
+
+
+def items_expiring_soon(
+    items: list[Item], today: date, within_days: int = 2
+) -> list[Item]:
+    return [x for x in items if 0 <= x.days_until_expiry(today) <= within_days]
