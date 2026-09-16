@@ -16,6 +16,18 @@ jobs:
   test-lint:
     runs-on: ubuntu-latest
 
+    env:
+      # Fixed, non-sensitive values so Settings() can load in CI (no
+      # real .env file here). Not secrets.* on purpose -- those aren't
+      # exposed to Dependabot-triggered runs, which would break CI on
+      # every dependency-bump PR.
+      SECRET_KEY: ci-test-secret-key-not-for-production
+      SMTP_HOST: smtp.example.com
+      SMTP_PORT: "587"
+      SMTP_USER: ci-test-user
+      SMTP_PASSWORD: ci-test-password-not-for-production
+      SMTP_FROM: ci-test@example.com
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
