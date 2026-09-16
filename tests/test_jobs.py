@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from app.domain.repository import InMemoryItemRepository
 from app.domain.user_repository import InMemoryUserRepository
-from app.jobs import run_reminder_job
+from app.jobs import run_reminder_job, run_scheduled_reminder_job
 from app.notifications import build_reminder_email
 from tests.domain.utils import create_item, create_user
 
@@ -27,3 +27,12 @@ def test_reminder_job_sends_email():
         )
         subject, body = build_reminder_email([item])
         mock_send.assert_called_once_with(user.email, subject, body)
+
+
+def test_run_scheduled_reminder_job():
+    with patch("app.jobs.SessionLocal") as mock_session_local:
+        with patch("app.jobs.run_reminder_job") as mock_run:
+            run_scheduled_reminder_job()
+            mock_run.assert_called_once()
+            session = mock_session_local.return_value
+            session.close.assert_called_once()
