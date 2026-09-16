@@ -35,3 +35,6 @@ class InMemoryItemRepository:
         for key, value in payload.items():
             setattr(item, key, value)
         return item
+
+    def list_all(self) -> list[Item]:
+        return list(self.items.values())

@@ -68,3 +68,11 @@ class TestInMemoryItemRepository:
     def test_update_item_not_found(self):
         with pytest.raises(ItemNotFound):
             self.repository.update_item(2, {"name": "change_name"})
+
+    def test_list_all_items(self):
+        self.repository.add_item(utils.create_item(name="test_item2"))
+        self.repository.add_item(utils.create_item(name="test_item3", user_id=2))
+        result = self.repository.list_all()
+
+        assert len(result) == 3
+        assert [item.user_id for item in result] == [1, 1, 2]

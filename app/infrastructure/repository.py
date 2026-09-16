@@ -37,6 +37,12 @@ class SQLAlchemyItemRepository:
         models = result.scalars().all()
         return [self._to_domain(model) for model in models]
 
+    def list_all(self) -> list[Item]:
+        statement = select(ItemModel)
+        result = self.session.execute(statement)
+        models = result.scalars().all()
+        return [self._to_domain(model) for model in models]
+
     def delete_item(self, item_id: int) -> None:
         model = self.session.get(ItemModel, item_id)
         if model is None:
