@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -8,12 +9,17 @@ from app.api.auth import router as auth_router
 from app.api.items import router as items_router
 from app.domain.exceptions import EmailAlreadyRegistered, ItemNotFound
 from app.infrastructure.database import Base, engine
+from app.jobs import run_scheduled_reminder_job
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(engine)
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(run_scheduled_reminder_job, "cron", hour=8)
+    scheduler.start()
     yield
+    scheduler.shutdown()
 
 
 app = FastAPI(lifespan=lifespan)
