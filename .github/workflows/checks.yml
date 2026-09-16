@@ -17,10 +17,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # Fixed, non-sensitive values so Settings() can load in CI (no
-      # real .env file here). Not secrets.* on purpose -- those aren't
-      # exposed to Dependabot-triggered runs, which would break CI on
-      # every dependency-bump PR.
       SECRET_KEY: ci-test-secret-key-not-for-production
       SMTP_HOST: smtp.example.com
       SMTP_PORT: "587"
