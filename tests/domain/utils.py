@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 
 from app.domain.inventory import Item
+from app.domain.recipe import Recipe
 from app.domain.user import User
 
 
@@ -24,3 +25,12 @@ def create_user(**kwargs):
     }
     payload.update(kwargs)
     return User(**payload)
+
+
+def create_recipe(**kwargs):
+    payload = {
+        "name": "test_recipe",
+        "required_ingredients": ["eggs", "butter"],
+    }
+    payload.update(kwargs)
+    return Recipe(**payload)

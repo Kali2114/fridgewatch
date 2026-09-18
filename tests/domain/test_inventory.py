@@ -7,7 +7,6 @@ from tests.domain.utils import create_item
 
 
 class TestInventory:
-
     def setup_method(self):
         self.today = date(2026, 8, 30)
         self.item = create_item()

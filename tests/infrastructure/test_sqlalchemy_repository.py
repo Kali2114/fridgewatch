@@ -6,7 +6,6 @@ from tests.domain.utils import create_item
 
 
 class TestSQLAlchemyItemRepository:
-
     @pytest.fixture(autouse=True)
     def setup(self, db_session):
         self.repository = SQLAlchemyItemRepository(db_session)

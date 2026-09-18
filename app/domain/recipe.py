@@ -2,9 +2,22 @@ from app.domain.inventory import Item
 
 
 class Recipe:
-    def __init__(self, name: str, required_ingredients: list[str]) -> None:
+    def __init__(
+        self, name: str, required_ingredients: list[str], id: int | None = None
+    ) -> None:
         self.name = name
         self.required_ingredients = required_ingredients
+        self.id = id
+
+    @property
+    def required_ingredients(self) -> list[str]:
+        return self._required_ingredients
+
+    @required_ingredients.setter
+    def required_ingredients(self, ingredients: list[str]) -> None:
+        if not ingredients:
+            raise ValueError("ingredients cannot be empty")
+        self._required_ingredients = ingredients
 
 
 def missing_ingredients(recipe: Recipe, items: list[Item]) -> set[str]:

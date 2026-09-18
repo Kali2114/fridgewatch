@@ -12,3 +12,7 @@ class UserNotFound(DomainError):
 
 class EmailAlreadyRegistered(DomainError):
     """Raised when a user's email is already registered."""
+
+
+class RecipeNotFound(DomainError):
+    """Raised when a recipe lookup finds no recipe for the given id."""

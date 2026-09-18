@@ -7,7 +7,6 @@ from . import utils
 
 
 class TestUserRepository:
-
     def setup_method(self):
         self.user = utils.create_user()
         self.repository = InMemoryUserRepository()

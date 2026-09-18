@@ -7,7 +7,6 @@ from . import utils
 
 
 class TestInMemoryItemRepository:
-
     def setup_method(self):
         self.item = utils.create_item()
         self.repository = InMemoryItemRepository()

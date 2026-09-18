@@ -7,7 +7,6 @@ from tests.domain.utils import create_item
 
 
 class TestRecipe:
-
     def test_missing_ingredients_when_all_in_stock(self):
         item1 = create_item(name="milk")
         item2 = create_item(name="eggs")
