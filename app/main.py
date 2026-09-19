@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api.auth import router as auth_router
 from app.api.items import router as items_router
+from app.api.recipes import router as recipes_router
 from app.domain.exceptions import EmailAlreadyRegistered, ItemNotFound
 from app.infrastructure.database import Base, engine
 from app.jobs import run_scheduled_reminder_job
@@ -25,6 +26,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.include_router(items_router)
 app.include_router(auth_router)
+app.include_router(recipes_router)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
