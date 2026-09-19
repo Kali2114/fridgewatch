@@ -51,3 +51,20 @@ class UserLogin(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str
+
+
+class RecipeCreate(BaseModel):
+    name: str
+    required_ingredients: list[str]
+
+
+class RecipeRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    name: str
+    required_ingredients: list[str]
+
+
+class RecipeUpdate(BaseModel):
+    name: str | None = None
+    required_ingredients: list[str] | None = None

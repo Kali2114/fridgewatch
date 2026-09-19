@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Date, Integer, String
+from sqlalchemy import JSON, Boolean, Column, Date, Integer, String
 
 from app.infrastructure.database import Base
 
@@ -20,3 +20,10 @@ class UserModel(Base):
     email = Column(String, unique=True)
     hashed_password = Column(String)
     is_active = Column(Boolean)
+
+
+class RecipeModel(Base):
+    __tablename__ = "recipes"
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    required_ingredients = Column(JSON)

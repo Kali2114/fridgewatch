@@ -2,7 +2,13 @@ from datetime import date, timedelta
 
 import pytest
 
-from app.dependencies import get_current_user, get_repository, get_user_repository
+from app.dependencies import (
+    get_current_user,
+    get_recipe_repository,
+    get_repository,
+    get_user_repository,
+)
+from app.domain.recipe_repository import InMemoryRecipeRepository
 from app.domain.repository import InMemoryItemRepository
 from app.domain.user import User
 from app.domain.user_repository import InMemoryUserRepository
@@ -52,4 +58,14 @@ def current_user():
 
     yield user
 
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def recipe_fresh_repository():
+    repository = InMemoryRecipeRepository()
+
+    app.dependency_overrides[get_recipe_repository] = lambda: repository
+
+    yield repository
     app.dependency_overrides.clear()

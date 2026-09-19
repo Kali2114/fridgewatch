@@ -4,8 +4,14 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 import app.dependencies as dependencies
-from app.dependencies import get_current_user, get_repository, get_user_repository
+from app.dependencies import (
+    get_current_user,
+    get_recipe_repository,
+    get_repository,
+    get_user_repository,
+)
 from app.domain.user_repository import InMemoryUserRepository
+from app.infrastructure.recipe_repository import SQLAlchemyRecipeRepository
 from app.infrastructure.repository import SQLAlchemyItemRepository
 from app.infrastructure.user_repository import SQLAlchemyUserRepository
 from app.security import create_access_token
@@ -32,6 +38,19 @@ def test_get_user_repository_yields_and_closes_session(monkeypatch):
     repository = next(generator)
 
     assert isinstance(repository, SQLAlchemyUserRepository)
+
+
+def test_get_recipe_repository_yields_and_closes_session(monkeypatch):
+    engine = create_engine("sqlite:///:memory:")
+    monkeypatch.setattr(dependencies, "SessionLocal", sessionmaker(bind=engine))
+
+    generator = get_recipe_repository()
+    repository = next(generator)
+
+    assert isinstance(repository, SQLAlchemyRecipeRepository)
+
+    with pytest.raises(StopIteration):
+        next(generator)
 
 
 def test_get_current_user_success():

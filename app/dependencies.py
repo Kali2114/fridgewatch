@@ -8,6 +8,7 @@ from app import security
 from app.domain.exceptions import UserNotFound
 from app.domain.user import User
 from app.infrastructure.database import SessionLocal
+from app.infrastructure.recipe_repository import SQLAlchemyRecipeRepository
 from app.infrastructure.repository import SQLAlchemyItemRepository
 from app.infrastructure.user_repository import SQLAlchemyUserRepository
 
@@ -43,3 +44,12 @@ def get_current_user(
         return user
     except (UserNotFound, JWTError):
         raise HTTPException(status_code=401, detail="Invalid credentials")
+
+
+def get_recipe_repository() -> Iterator[SQLAlchemyRecipeRepository]:
+    session = SessionLocal()
+    try:
+        repository = SQLAlchemyRecipeRepository(session)
+        yield repository
+    finally:
+        session.close()
