@@ -19,15 +19,15 @@ class InMemoryRecipeRepository:
         try:
             return self.recipes[recipe_id]
         except KeyError:
-            raise RecipeNotFound(f"Recipe with id {recipe_id} not found") from None
+            raise RecipeNotFound(f"Recipe {recipe_id} not found") from None
 
     def delete_recipe(self, recipe_id: int) -> None:
         try:
             del self.recipes[recipe_id]
         except KeyError:
-            raise RecipeNotFound(f"Recipe with id {recipe_id} not found") from None
+            raise RecipeNotFound(f"Recipe {recipe_id} not found") from None
 
-    def list_all_recipes(self) -> list[Recipe]:
+    def list_all(self) -> list[Recipe]:
         return list(self.recipes.values())
 
     def update_recipe(self, recipe_id: int, payload: dict[str, Any]) -> Recipe:

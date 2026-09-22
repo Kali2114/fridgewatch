@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from app.api.auth import router as auth_router
 from app.api.items import router as items_router
 from app.api.recipes import router as recipes_router
-from app.domain.exceptions import EmailAlreadyRegistered, ItemNotFound
+from app.domain.exceptions import EmailAlreadyRegistered, ItemNotFound, RecipeNotFound
 from app.infrastructure.database import Base, engine
 from app.jobs import run_scheduled_reminder_job
 
@@ -47,6 +47,14 @@ def item_not_found_handler(request: Request, exc: ItemNotFound):
 def email_already_registered_handler(request: Request, exc: EmailAlreadyRegistered):
     return JSONResponse(
         status_code=409,
+        content={"detail": str(exc)},
+    )
+
+
+@app.exception_handler(RecipeNotFound)
+def recipe_not_found_handler(request: Request, exc: RecipeNotFound):
+    return JSONResponse(
+        status_code=404,
         content={"detail": str(exc)},
     )
 

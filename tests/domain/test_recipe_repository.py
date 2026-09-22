@@ -40,7 +40,7 @@ class TestInMemoryRecipeRepository:
     def test_list_all_recipes(self):
         self.repository.add_recipe(create_recipe(name="second recipe"))
         self.repository.add_recipe(create_recipe(name="third recipe"))
-        result = self.repository.list_all_recipes()
+        result = self.repository.list_all()
 
         assert len(result) == 3
 

@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
 
 from app.main import app
+from tests.domain.utils import create_recipe
 
 client = TestClient(app)
 
@@ -18,3 +19,66 @@ def test_post_recipe(recipe_fresh_repository):
         "name": "test_name",
         "required_ingredients": ["test_ingredient"],
     }
+
+
+def test_list_recipes(recipe_fresh_repository):
+    recipe_fresh_repository.add_recipe(create_recipe(name="test1"))
+    recipe_fresh_repository.add_recipe(create_recipe(name="test2"))
+    recipe_fresh_repository.add_recipe(create_recipe(name="test3"))
+    res = client.get("/recipes")
+
+    assert res.status_code == 200
+    assert len(res.json()) == 3
+    assert {r["name"] for r in res.json()} == {"test1", "test2", "test3"}
+
+
+def test_get_recipe_successful(recipe_fresh_repository):
+    recipe_fresh_repository.add_recipe(create_recipe(name="test1"))
+    res = client.get("/recipes/1")
+
+    assert res.status_code == 200
+    assert res.json() == {
+        "id": 1,
+        "name": "test1",
+        "required_ingredients": ["eggs", "butter"],
+    }
+    assert len(res.json()) == 3
+
+
+def test_get_recipe_not_found(recipe_fresh_repository):
+    res = client.get("/recipes/99")
+
+    assert res.status_code == 404
+    assert res.json() == {"detail": "Recipe 99 not found"}
+
+
+def test_update_recipe(recipe_fresh_repository):
+    recipe_fresh_repository.add_recipe(create_recipe(name="test1"))
+    payload = {
+        "name": "updated_name",
+        "required_ingredients": ["updated_ingredient"],
+    }
+    res = client.put("/recipes/1", json=payload)
+
+    assert res.status_code == 200
+    assert res.json()["name"] == "updated_name"
+    assert res.json()["required_ingredients"] == ["updated_ingredient"]
+
+
+def test_update_recipe_not_found(recipe_fresh_repository):
+    res = client.put("/recipes/99", json={})
+    assert res.status_code == 404
+    assert res.json() == {"detail": "Recipe 99 not found"}
+
+
+def test_delete_recipe(recipe_fresh_repository):
+    recipe = recipe_fresh_repository.add_recipe(create_recipe(name="test1"))
+    res = client.delete(f"/recipes/{recipe.id}")
+
+    assert res.status_code == 204
+
+
+def test_delete_recipe_not_found(recipe_fresh_repository):
+    res = client.delete("/recipes/99")
+    assert res.status_code == 404
+    assert res.json() == {"detail": "Recipe 99 not found"}
