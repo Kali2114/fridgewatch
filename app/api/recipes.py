@@ -1,9 +1,13 @@
 from fastapi import APIRouter, Depends, status
 
-from app.dependencies import get_current_user, get_recipe_repository
-from app.domain.recipe import Recipe
+from app.dependencies import get_current_user, get_recipe_repository, get_repository
+from app.domain.recipe import (
+    Recipe,
+    missing_ingredients,
+    rank_recipes_by_missing_ingredients,
+)
 from app.domain.user import User
-from app.schemas import RecipeCreate, RecipeRead, RecipeUpdate
+from app.schemas import RecipeCreate, RecipeMatch, RecipeRead, RecipeUpdate
 
 router = APIRouter()
 
@@ -14,6 +18,25 @@ def _recipe_to_read(recipe: Recipe) -> RecipeRead:
         name=recipe.name,
         required_ingredients=recipe.required_ingredients,
     )
+
+
+@router.get("/recipes/matches", response_model=list[RecipeMatch])
+def get_recipe_matches(
+    repository_items=Depends(get_repository),
+    repository_recipes=Depends(get_recipe_repository),
+    current_user: User = Depends(get_current_user),
+) -> list[RecipeMatch]:
+    user_items = repository_items.list_for_user(current_user.id)
+    recipes = repository_recipes.list_all()
+    ranked_recipes = rank_recipes_by_missing_ingredients(recipes, user_items)
+    return [
+        RecipeMatch(
+            id=recipe.id,
+            name=recipe.name,
+            missing_ingredients=sorted(missing_ingredients(recipe, user_items)),
+        )
+        for recipe in ranked_recipes
+    ]
 
 
 @router.post("/recipes", response_model=RecipeRead, status_code=status.HTTP_201_CREATED)

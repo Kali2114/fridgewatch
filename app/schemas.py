@@ -68,3 +68,9 @@ class RecipeRead(BaseModel):
 class RecipeUpdate(BaseModel):
     name: str | None = None
     required_ingredients: list[str] | None = None
+
+
+class RecipeMatch(BaseModel):
+    id: int
+    name: str
+    missing_ingredients: list[str]

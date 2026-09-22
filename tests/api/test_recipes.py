@@ -1,6 +1,8 @@
 from fastapi.testclient import TestClient
 
+from app.domain.recipe import Recipe
 from app.main import app
+from tests.domain import utils
 from tests.domain.utils import create_recipe
 
 client = TestClient(app)
@@ -82,3 +84,42 @@ def test_delete_recipe_not_found(recipe_fresh_repository):
     res = client.delete("/recipes/99")
     assert res.status_code == 404
     assert res.json() == {"detail": "Recipe 99 not found"}
+
+
+def test_get_recipe_matches(fresh_repository, recipe_fresh_repository):
+    fresh_repository.add_item(utils.create_item(name="Milk"))
+    fresh_repository.add_item(utils.create_item(name="Eggs"))
+
+    recipe_fresh_repository.add_recipe(
+        Recipe(
+            name="Scrambled Eggs",
+            required_ingredients=["Eggs"],
+        )
+    )
+
+    recipe_fresh_repository.add_recipe(
+        Recipe(
+            name="Omelette",
+            required_ingredients=["Eggs", "Milk", "Cheese"],
+        )
+    )
+
+    recipe_fresh_repository.add_recipe(
+        Recipe(
+            name="Pancakes",
+            required_ingredients=["Milk", "Flour", "Sugar"],
+        )
+    )
+
+    res = client.get("/recipes/matches")
+
+    assert res.status_code == 200
+    data = res.json()
+
+    assert [recipe["name"] for recipe in data] == [
+        "Scrambled Eggs",
+        "Omelette",
+        "Pancakes",
+    ]
+    assert data[1]["missing_ingredients"] == ["Cheese"]
+    assert data[2]["missing_ingredients"] == ["Flour", "Sugar"]
