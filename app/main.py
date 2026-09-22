@@ -4,13 +4,14 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy.orm import Session
 
 from app.api.auth import router as auth_router
 from app.api.items import router as items_router
 from app.api.recipes import router as recipes_router
 from app.domain.exceptions import EmailAlreadyRegistered, ItemNotFound, RecipeNotFound
 from app.domain.recipe_seed import seed_recipes
-from app.infrastructure.database import Base, SessionLocal, engine
+from app.infrastructure.database import Base, engine
 from app.infrastructure.recipe_repository import SQLAlchemyRecipeRepository
 from app.jobs import run_scheduled_reminder_job
 
@@ -18,11 +19,8 @@ from app.jobs import run_scheduled_reminder_job
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(engine)
-    session = SessionLocal()
-    try:
+    with Session(engine) as session:
         seed_recipes(SQLAlchemyRecipeRepository(session))
-    finally:
-        session.close()
     scheduler = AsyncIOScheduler()
     scheduler.add_job(run_scheduled_reminder_job, "cron", hour=8)
     scheduler.start()
