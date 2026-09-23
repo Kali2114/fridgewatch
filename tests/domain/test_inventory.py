@@ -62,3 +62,13 @@ class TestInventory:
         )
 
         assert result == [expiring_soon]
+
+    def test_item_has_photo_path(self):
+        item = create_item(photo_path="uploads/item1.jpg")
+
+        assert item.photo_path == "uploads/item1.jpg"
+
+    def test_item_photo_path_defaults_to_none(self):
+        item = create_item()
+
+        assert item.photo_path is None

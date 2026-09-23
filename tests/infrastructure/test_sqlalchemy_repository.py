@@ -29,6 +29,13 @@ class TestSQLAlchemyItemRepository:
         with pytest.raises(ItemNotFound):
             self.repository.get_item(99)
 
+    def test_item_photo_path_round_trips(self):
+        item = create_item(photo_path="uploads/item1.jpg")
+        self.repository.add_item(item)
+        retrieved = self.repository.get_item(item.id)
+
+        assert retrieved.photo_path == "uploads/item1.jpg"
+
     def test_list_for_user(self):
         item1 = create_item(name="item1")
         item2 = create_item(name="item2")

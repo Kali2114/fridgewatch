@@ -17,6 +17,7 @@ class Item:
         added_date: date,
         expiry_date: date,
         id: int | None = None,
+        photo_path: str | None = None,
     ) -> None:
         self.name = name
         self.quantity = quantity
@@ -24,6 +25,7 @@ class Item:
         self.expiry_date = expiry_date
         self.user_id = user_id
         self.id = id
+        self.photo_path = photo_path
 
     @property
     def quantity(self) -> int:

@@ -1,7 +1,9 @@
+import io
 from datetime import date, timedelta
 
 from fastapi.testclient import TestClient
 
+from app.api import items as items_module
 from app.main import app
 from tests.domain.utils import create_item
 
@@ -25,6 +27,7 @@ def test_post_item(fresh_repository):
         "user_id": 1,
         "status": "expired",
         "days_until_expiry": (date(2020, 4, 4) - date.today()).days,
+        "photo_path": None,
     }
 
 
@@ -61,6 +64,7 @@ def test_list_items(fresh_repository, tomorrow):
             "user_id": 1,
             "status": "expiring_soon",
             "days_until_expiry": 1,
+            "photo_path": None,
         },
         {
             "id": 2,
@@ -71,6 +75,7 @@ def test_list_items(fresh_repository, tomorrow):
             "user_id": 1,
             "status": "expiring_soon",
             "days_until_expiry": 1,
+            "photo_path": None,
         },
     ]
 
@@ -88,6 +93,7 @@ def test_get_item_successful(seeded_item, tomorrow):
         "user_id": 1,
         "status": "expiring_soon",
         "days_until_expiry": 1,
+        "photo_path": None,
     }
 
 
@@ -128,6 +134,7 @@ def test_update_item(seeded_item, tomorrow):
         "user_id": 1,
         "status": "expiring_soon",
         "days_until_expiry": 2,
+        "photo_path": None,
     }
 
 
@@ -178,3 +185,97 @@ def test_get_item_sorted_by_expire_days(fresh_repository):
 
     assert res.status_code == 200
     assert res.json()[0]["name"] == "expired_item"
+
+
+def test_upload_photo_success(seeded_item, tmp_path, monkeypatch):
+    monkeypatch.setattr(items_module, "UPLOAD_DIR", tmp_path)
+    file_content = b"fake image bytes"
+
+    res = client.post(
+        "/items/1/photo",
+        files={"image": ("photo.jpg", io.BytesIO(file_content), "image/jpeg")},
+    )
+
+    assert res.status_code == 200
+    data = res.json()
+    assert data["photo_path"].startswith("uploads/")
+    assert data["photo_path"].endswith(".jpg")
+
+    saved_files = list(tmp_path.iterdir())
+    assert len(saved_files) == 1
+    assert saved_files[0].read_bytes() == file_content
+
+
+def test_upload_photo_missing_filename(seeded_item, tmp_path, monkeypatch):
+    monkeypatch.setattr(items_module, "UPLOAD_DIR", tmp_path)
+
+    res = client.post(
+        "/items/1/photo",
+        files={"image": ("", io.BytesIO(b"data"), "image/jpeg")},
+    )
+
+    # FastAPI itself rejects an empty filename during multipart parsing,
+    # before _validate_image's own filename check ever runs.
+    assert res.status_code == 422
+
+
+def test_upload_photo_invalid_extension(seeded_item, tmp_path, monkeypatch):
+    monkeypatch.setattr(items_module, "UPLOAD_DIR", tmp_path)
+
+    res = client.post(
+        "/items/1/photo",
+        files={"image": ("malware.exe", io.BytesIO(b"data"), "image/jpeg")},
+    )
+
+    assert res.status_code == 400
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_upload_photo_invalid_content_type(seeded_item, tmp_path, monkeypatch):
+    monkeypatch.setattr(items_module, "UPLOAD_DIR", tmp_path)
+
+    res = client.post(
+        "/items/1/photo",
+        files={"image": ("photo.jpg", io.BytesIO(b"data"), "text/plain")},
+    )
+
+    assert res.status_code == 400
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_upload_photo_too_large(seeded_item, tmp_path, monkeypatch):
+    monkeypatch.setattr(items_module, "UPLOAD_DIR", tmp_path)
+    monkeypatch.setattr(items_module, "MAX_FILE_SIZE", 10)
+
+    res = client.post(
+        "/items/1/photo",
+        files={
+            "image": ("photo.jpg", io.BytesIO(b"more than ten bytes"), "image/jpeg")
+        },
+    )
+
+    assert res.status_code == 413
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_upload_photo_not_found(fresh_repository):
+    res = client.post(
+        "/items/99/photo",
+        files={"image": ("photo.jpg", io.BytesIO(b"data"), "image/jpeg")},
+    )
+
+    assert res.status_code == 404
+    assert res.json() == {"detail": "Item 99 not found"}
+
+
+def test_upload_photo_owned_by_another_user(fresh_repository):
+    other_users_item = create_item(user_id=2)
+    fresh_repository.add_item(other_users_item)
+
+    res = client.post(
+        f"/items/{other_users_item.id}/photo",
+        files={"image": ("photo.jpg", io.BytesIO(b"data"), "image/jpeg")},
+    )
+
+    assert res.status_code == 404
+    assert res.json() == {"detail": f"Item {other_users_item.id} not found"}

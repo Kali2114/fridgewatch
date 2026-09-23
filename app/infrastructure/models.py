@@ -11,6 +11,7 @@ class ItemModel(Base):
     quantity = Column(Integer)
     added_date = Column(Date)
     expiry_date = Column(Date)
+    photo_path = Column(String, nullable=True)
 
 
 class UserModel(Base):

@@ -19,6 +19,7 @@ class SQLAlchemyItemRepository:
             quantity=item.quantity,
             added_date=item.added_date,
             expiry_date=item.expiry_date,
+            photo_path=item.photo_path,
         )
         self.session.add(model)
         self.session.commit()
@@ -63,6 +64,7 @@ class SQLAlchemyItemRepository:
         model.quantity = domain_item.quantity
         model.added_date = domain_item.added_date
         model.expiry_date = domain_item.expiry_date
+        model.photo_path = domain_item.photo_path
         self.session.commit()
         return domain_item
 
@@ -75,4 +77,5 @@ class SQLAlchemyItemRepository:
             quantity=model.quantity,
             added_date=model.added_date,
             expiry_date=model.expiry_date,
+            photo_path=model.photo_path,
         )

@@ -21,6 +21,7 @@ class ItemRead(BaseModel):
     user_id: int
     status: ExpiryStatus
     days_until_expiry: int
+    photo_path: str | None = None
 
 
 class ItemUpdate(BaseModel):
