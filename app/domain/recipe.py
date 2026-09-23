@@ -21,10 +21,10 @@ class Recipe:
 
 
 def missing_ingredients(recipe: Recipe, items: list[Item]) -> set[str]:
-    names = {item.name for item in items}
+    names = {item.name.strip().lower() for item in items}
     result = set()
     for ingredient in recipe.required_ingredients:
-        if ingredient not in names:
+        if ingredient.strip().lower() not in names:
             result.add(ingredient)
     return result
 

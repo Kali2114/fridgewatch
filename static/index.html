@@ -30,7 +30,7 @@
   header p { color: var(--muted); margin: 0.25rem 0 0; font-size: 0.9rem; }
 
   main {
-    max-width: 640px;
+    max-width: 720px;
     margin: 0 auto;
     padding: 1rem;
   }
@@ -109,21 +109,237 @@
   }
   ul.items li:last-child { border-bottom: none; }
 
-  .dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  .dot.fresh { background: var(--fresh); }
-  .dot.expiring_soon { background: var(--soon); }
-  .dot.expired { background: var(--expired); }
-
   .item-info { flex: 1; min-width: 0; }
   .item-name { font-weight: 600; }
   .item-meta { font-size: 0.8rem; color: var(--muted); }
 
   .empty { text-align: center; color: var(--muted); padding: 1.5rem 0; }
+
+  .add-item-card {
+    max-width: 420px;
+    margin: 0 auto 0.5rem;
+    padding: 0.7rem 0.9rem;
+  }
+  .add-item-card h2 {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.4rem;
+  }
+  .add-item-card form { gap: 0.4rem; }
+  .add-item-card label { font-size: 0.7rem; }
+  .add-item-card input { padding: 0.35rem 0.5rem; font-size: 0.82rem; }
+  .add-item-card button.primary { padding: 0.4rem 0.7rem; font-size: 0.82rem; }
+
+  .fridge-row {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 0;
+    flex-wrap: wrap;
+    padding: 1rem 0 0.5rem;
+  }
+
+  .fridge-wrap {
+    display: flex;
+    justify-content: center;
+    perspective: 1800px;
+    z-index: 1;
+  }
+
+  .fridge {
+    position: relative;
+    width: 380px;
+    height: 480px;
+    background: linear-gradient(180deg, #dfe3df, #c9cec8);
+    border-radius: 20px;
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2), inset 0 0 0 2px #b7bcb4;
+  }
+
+  .fridge-interior {
+    position: absolute;
+    inset: 14px;
+    background-color: #eef1ec;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 91px,
+      rgba(0, 0, 0, 0.06) 91px,
+      rgba(0, 0, 0, 0.06) 94px
+    );
+    border-radius: 10px;
+    padding: 12px;
+    overflow-y: auto;
+    box-shadow: inset 0 8px 14px rgba(0, 0, 0, 0.12);
+  }
+
+  .fridge-door {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, #f4f6f3, #dde1db);
+    border-radius: 20px;
+    box-shadow: 0 0 0 2px #b7bcb4, inset 0 0 20px rgba(0, 0, 0, 0.04);
+    transform-origin: left center;
+    transform: rotateY(0deg);
+    transition: transform 0.7s ease;
+    cursor: pointer;
+  }
+
+  .fridge.open .fridge-door {
+    transform: rotateY(-108deg);
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.25);
+  }
+
+  .fridge-handle {
+    position: absolute;
+    top: 50%;
+    right: 18px;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 100px;
+    border-radius: 4px;
+    background: #9aa19a;
+  }
+
+  .fridge-hint {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  .item-photo,
+  .item-photo-placeholder {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    border: 3px solid var(--border);
+  }
+  .item-photo { object-fit: cover; }
+  .item-photo-placeholder {
+    background: #f2f4f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+  }
+  .item-photo.fresh, .item-photo-placeholder.fresh { border-color: var(--fresh); }
+  .item-photo.expiring_soon, .item-photo-placeholder.expiring_soon { border-color: var(--soon); }
+  .item-photo.expired, .item-photo-placeholder.expired { border-color: var(--expired); }
+
+  .photo-input { display: none; }
+  .photo-btn {
+    cursor: pointer;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #eef1ec;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .photo-btn:hover { background: #e2e6de; }
+
+  @keyframes cloud-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  @keyframes recipe-pop-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .recipe-cloud {
+    position: relative;
+    width: 210px;
+    margin-left: -12px;
+    margin-top: 60px;
+    z-index: 2;
+    background: #eef1ec;
+    border: 1px solid #c7ccc3;
+    border-radius: 30px 30px 30px 8px;
+    padding: 1.3rem 0.7rem 0.7rem;
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.07);
+    opacity: 0;
+    transform: translateX(-30px);
+    pointer-events: none;
+    transition: opacity 0.4s ease 0.3s, transform 0.4s ease 0.3s;
+  }
+  .fridge-row.open .recipe-cloud {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+    animation: cloud-float 6s ease-in-out infinite;
+  }
+  .recipe-cloud::before,
+  .recipe-cloud::after {
+    content: "";
+    position: absolute;
+    background: #eef1ec;
+    border: 1px solid #c7ccc3;
+    border-radius: 50%;
+  }
+  .recipe-cloud::before {
+    width: 26px;
+    height: 26px;
+    top: -12px;
+    left: 18px;
+  }
+  .recipe-cloud::after {
+    width: 18px;
+    height: 18px;
+    top: -6px;
+    left: 42px;
+  }
+  .recipe-cloud-bump {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: -6px;
+    right: 22px;
+    background: #eef1ec;
+    border: 1px solid #c7ccc3;
+    border-radius: 50%;
+  }
+  .recipe-cloud-title {
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-align: center;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  ul.recipe-matches {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 190px;
+    overflow-y: auto;
+  }
+  ul.recipe-matches li {
+    padding: 0.45rem 0.4rem;
+    margin-bottom: 0.3rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 0.78rem;
+    animation: recipe-pop-in 0.3s ease both;
+  }
+  ul.recipe-matches li:last-child { margin-bottom: 0; }
+  ul.recipe-matches li.ready {
+    background: #eaf6ee;
+    border-color: #bfe3c9;
+  }
+  .recipe-name { font-weight: 600; }
+  .recipe-missing { font-size: 0.72rem; color: var(--muted); margin-top: 0.15rem; }
+  .recipe-missing.ready { color: var(--fresh); font-weight: 600; }
 </style>
 </head>
 <body>
@@ -180,7 +396,7 @@
       <button type="button" id="logoutBtn">Log out</button>
     </div>
 
-    <div class="card">
+    <div class="card add-item-card">
       <h2>Add an item</h2>
       <form id="addItemForm">
         <div>
@@ -202,10 +418,27 @@
       </form>
     </div>
 
-    <div class="card">
-      <h2>Your fridge</h2>
-      <ul class="items" id="itemList"></ul>
-      <p class="empty" id="emptyState" style="display: none;">Nothing in the fridge yet.</p>
+    <h2 style="text-align: center; font-size: 1.1rem;">Your fridge</h2>
+    <div class="fridge-row" id="fridgeRow">
+      <div class="fridge-wrap">
+        <div class="fridge" id="fridge">
+          <div class="fridge-interior">
+            <ul class="items" id="itemList"></ul>
+            <p class="empty" id="emptyState" style="display: none;">Nothing in the fridge yet.</p>
+          </div>
+          <div class="fridge-door" id="fridgeDoor">
+            <div class="fridge-handle"></div>
+            <div class="fridge-hint">Tap to open</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="recipe-cloud">
+        <span class="recipe-cloud-bump"></span>
+        <div class="recipe-cloud-title">Recipes</div>
+        <ul class="recipe-matches" id="recipeMatches"></ul>
+        <p class="empty" id="recipeEmptyState" style="display: none;">No recipes yet.</p>
+      </div>
     </div>
   </section>
 
@@ -229,6 +462,16 @@
   const emptyState = document.getElementById("emptyState");
   const addItemForm = document.getElementById("addItemForm");
   const addItemError = document.getElementById("addItemError");
+  const fridge = document.getElementById("fridge");
+  const fridgeRow = document.getElementById("fridgeRow");
+  const fridgeDoor = document.getElementById("fridgeDoor");
+  const recipeMatches = document.getElementById("recipeMatches");
+  const recipeEmptyState = document.getElementById("recipeEmptyState");
+
+  fridgeDoor.addEventListener("click", function () {
+    fridge.classList.toggle("open");
+    fridgeRow.classList.toggle("open");
+  });
 
   function getToken() {
     return localStorage.getItem(TOKEN_KEY);
@@ -250,7 +493,7 @@
   function showDashboard() {
     authSection.classList.add("hidden");
     dashboardSection.classList.add("visible");
-    loadItems();
+    refreshDashboard();
   }
 
   function showRegisterForm() {
@@ -353,8 +596,17 @@
     items.forEach(function (item) {
       const li = document.createElement("li");
 
-      const dot = document.createElement("span");
-      dot.className = "dot " + item.status;
+      let thumb;
+      if (item.photo_path) {
+        thumb = document.createElement("img");
+        thumb.className = "item-photo " + item.status;
+        thumb.src = "/static/" + item.photo_path;
+        thumb.alt = item.name;
+      } else {
+        thumb = document.createElement("span");
+        thumb.className = "item-photo-placeholder " + item.status;
+        thumb.textContent = "🍽️";
+      }
 
       const info = document.createElement("div");
       info.className = "item-info";
@@ -379,6 +631,23 @@
       info.appendChild(name);
       info.appendChild(meta);
 
+      const photoInput = document.createElement("input");
+      photoInput.type = "file";
+      photoInput.accept = "image/*";
+      photoInput.className = "photo-input";
+      photoInput.id = "photoInput" + item.id;
+      photoInput.addEventListener("change", function () {
+        if (photoInput.files.length > 0) {
+          uploadPhoto(item.id, photoInput.files[0]);
+        }
+      });
+
+      const photoLabel = document.createElement("label");
+      photoLabel.className = "photo-btn";
+      photoLabel.htmlFor = photoInput.id;
+      photoLabel.textContent = "📷";
+      photoLabel.title = "Add photo";
+
       const deleteBtn = document.createElement("button");
       deleteBtn.className = "danger";
       deleteBtn.textContent = "✕";
@@ -387,8 +656,10 @@
         deleteItem(item.id);
       });
 
-      li.appendChild(dot);
+      li.appendChild(thumb);
       li.appendChild(info);
+      li.appendChild(photoInput);
+      li.appendChild(photoLabel);
       li.appendChild(deleteBtn);
       itemList.appendChild(li);
     });
@@ -403,6 +674,68 @@
     } catch (err) {
       // authFetch already routed us back to the login screen on 401
     }
+  }
+
+  async function uploadPhoto(itemId, file) {
+    const formData = new FormData();
+    formData.append("image", file);
+    try {
+      const res = await authFetch("/items/" + itemId + "/photo", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.detail || "Could not upload photo.");
+        return;
+      }
+      refreshDashboard();
+    } catch (err) {
+      // authFetch already routed us back to the login screen on 401
+    }
+  }
+
+  function renderRecipeMatches(matches) {
+    recipeMatches.innerHTML = "";
+    recipeEmptyState.style.display = matches.length === 0 ? "block" : "none";
+
+    matches.forEach(function (match) {
+      const li = document.createElement("li");
+
+      const name = document.createElement("div");
+      name.className = "recipe-name";
+      name.textContent = match.name;
+
+      const status = document.createElement("div");
+      status.className = "recipe-missing";
+      if (match.missing_ingredients.length === 0) {
+        status.textContent = "✅ Ready to make!";
+        status.classList.add("ready");
+        li.classList.add("ready");
+      } else {
+        status.textContent = "Missing: " + match.missing_ingredients.join(", ");
+      }
+
+      li.appendChild(name);
+      li.appendChild(status);
+      recipeMatches.appendChild(li);
+    });
+  }
+
+  async function loadRecipeMatches() {
+    try {
+      const res = await authFetch("/recipes/matches");
+      if (!res.ok) return;
+      const matches = await res.json();
+      renderRecipeMatches(matches);
+    } catch (err) {
+      // authFetch already routed us back to the login screen on 401
+    }
+  }
+
+  function refreshDashboard() {
+    loadItems();
+    loadRecipeMatches();
   }
 
   addItemForm.addEventListener("submit", async function (e) {
@@ -425,7 +758,7 @@
       }
       addItemForm.reset();
       document.getElementById("itemQuantity").value = 1;
-      loadItems();
+      refreshDashboard();
     } catch (err) {
       addItemError.textContent = err.message || "Could not reach the server.";
     }
@@ -434,7 +767,7 @@
   async function deleteItem(id) {
     try {
       await authFetch("/items/" + id, { method: "DELETE" });
-      loadItems();
+      refreshDashboard();
     } catch (err) {
       // already routed to login if session expired
     }

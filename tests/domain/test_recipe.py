@@ -31,6 +31,18 @@ class TestRecipe:
 
         assert result == {"onions", "tomatoes"}
 
+    def test_missing_ingredients_matching_ignores_case_and_whitespace(self):
+        item1 = create_item(name="  Eggs ")
+        item2 = create_item(name="MILK")
+        items = [item1, item2]
+        recipe = Recipe(
+            name="Omelette",
+            required_ingredients=["eggs", "Milk"],
+        )
+        result = missing_ingredients(recipe, items)
+
+        assert result == set()
+
     def test_recipes_are_ranked_by_fewest_missing_ingredients(self):
         item1 = create_item(name="eggs")
         item2 = create_item(name="butter")

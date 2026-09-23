@@ -117,7 +117,7 @@ def _validate_image(image: UploadFile) -> str:
 
     if image.size is not None and image.size > MAX_FILE_SIZE:
         raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
             detail="File too large",
         )
 
