@@ -1,7 +1,7 @@
 from app.domain.recipe import Recipe
 
 SEED_RECIPES = [
-    {"name": "Scrambled Eggs", "required_ingredients": ["eggs", "butter", "milk"]},
+    {"name": "Scrambled Eggs", "required_ingredients": ["eggs", "butter"]},
     {"name": "Omelette", "required_ingredients": ["eggs", "milk", "cheese"]},
     {
         "name": "Pancakes",
